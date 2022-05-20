@@ -17,6 +17,8 @@ class ImageGenerator:
         extent=10,
         radius_loc=25,
         radius_scale=5,
+        step_scale: tuple[int, int] = (5, 5),
+        XY_stage_drift: tuple[int, int] = (0, 0),
     ):
         self._rng = np.random.default_rng()
         self._N = N
@@ -27,6 +29,8 @@ class ImageGenerator:
         X = self._rng.uniform(-self._shape[0] * extent, self._shape[0] * extent, (N, 1))
         Y = self._rng.uniform(-self._shape[1] * extent, self._shape[1] * extent, (N, 1))
         self._pos = np.hstack((X, Y))
+        self._step_scale = step_scale
+        self._stage_drift = np.array(XY_stage_drift)
 
     def snap_img(self, image_loc: tuple[float, float], as_rgb=False):
         x_idx = (self._pos[:, 0] < image_loc[0] + self._shape[0] // 2) & (
@@ -65,10 +69,10 @@ class ImageGenerator:
         """
         # label2rgb doesn't do this indexing, it just works from the lowest number
         # as the first color in the list. So do the indexing for it.
-        idx = np.unique(img)
+        idx = np.floor(np.unique(img)).astype(int)
         return label2rgb(img, colors=self._colors[idx])
 
-    def step_positions(self, delta_t=1, step_scale=15, drift=(0, 0)):
+    def step_positions(self, delta_t=1):
         self._pos += self._rng.normal(
-            loc=drift, scale=step_scale * delta_t, size=(self._N, 2)
-        )
+            scale=self._step_scale * delta_t, size=(self._N, 2)
+        ) + np.array(self._stage_drift)
