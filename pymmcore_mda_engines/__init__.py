@@ -5,13 +5,12 @@ except ImportError:
 __author__ = "Ian Hunt-Isaak"
 __email__ = "ianhuntisaak@gmail.com"
 
-from ._engines import DriftCorrectionEngine
-from ._image_generators import ImageGenerator
+from ._engines import DevEngine, DriftCorrectionEngine
 
 __all__ = [
     "__version__",
     "__author__",
     "__email__",
-    "ImageGenerator",
     "DriftCorrectionEngine",
+    "DevEngine",
 ]
